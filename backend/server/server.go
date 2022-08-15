@@ -28,8 +28,9 @@ func RunServer() {
 
 func serverConfiguration() fiber.Config {
 	return fiber.Config{
-		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 60 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		ReadTimeout:       60 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		EnablePrintRoutes: true,
 	}
 }
