@@ -1,0 +1,6 @@
+.enditorconfig
+Makefile
+docker-compose.yml
+.env.example
+.docker-volumes
+scripts

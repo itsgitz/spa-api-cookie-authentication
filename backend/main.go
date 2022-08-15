@@ -1,14 +1,7 @@
 package main
 
-import (
-	"go-api/database"
-	"go-api/server"
-)
-
-func init() {
-	database.InitDatabase()
-}
+import "go-api/app"
 
 func main() {
-	server.Run()
+	app.Run()
 }

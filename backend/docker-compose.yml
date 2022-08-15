@@ -3,6 +3,7 @@ services:
   db:
     image: postgres:14
     container_name: "go_api_db"
+    restart: always
     env_file:
       - .env
     ports:
@@ -15,12 +16,22 @@ services:
   db_admin:
     image: dpage/pgadmin4
     container_name: "go_api_db_admin"
+    restart: always
     env_file:
       - .env
     ports:
       - 8001:80
     networks:
       - go_api_network
+
+  # app:
+  #   container_name: "go_api_app"
+  #   restart: always
+  #   build: .
+  #   ports:
+  #     - ${APP_PORT}:${APP_PORT}
+  #   networks:
+  #     - go_api_network
 
 networks:
   go_api_network:

@@ -1,16 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
-	"net/http"
+	"github.com/gofiber/fiber/v2"
 )
 
-func Home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	message := map[string]string{
-		"message": "Hello!",
-	}
-
-	json.NewEncoder(w).Encode(message)
+func Home(c *fiber.Ctx) error {
+	return c.JSON(map[string]string{
+		"author":  "Anggit M Ginanjar",
+		"message": "Hello from go-api project!",
+	})
 }

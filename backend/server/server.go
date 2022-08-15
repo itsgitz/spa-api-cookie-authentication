@@ -1,38 +1,35 @@
 package server
 
 import (
+	"fmt"
 	"go-api/handler"
-	"log"
-	"net/http"
+	"go-api/middleware"
+	"os"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-const (
-	port = ":8000"
-)
+var port string
 
-func Run() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler.Home)
-	mux.HandleFunc("/login", handler.Login)
+func RunServer() {
+	port = fmt.Sprintf(":%s", os.Getenv("APP_PORT"))
 
-	server := serverConfiguration(mux)
-	log.Println("Start API server on port", port)
+	app := fiber.New(serverConfiguration())
+	app.Use(logger.New())
+	app.Use(middleware.AuthenticationMiddleware)
 
-	// Run HTTP Server
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
+	app.Get("/", handler.Home)
+	app.Post("/login", handler.Login)
+
+	app.Listen(port)
 }
 
-func serverConfiguration(mx *http.ServeMux) *http.Server {
-	return &http.Server{
-		Addr:              port,
-		Handler:           mx,
-		ReadTimeout:       60 * time.Second,
-		ReadHeaderTimeout: 60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		IdleTimeout:       60 * time.Second,
+func serverConfiguration() fiber.Config {
+	return fiber.Config{
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 }

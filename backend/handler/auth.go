@@ -1,7 +1,11 @@
 package handler
 
-import "net/http"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Login"))
+func Login(c *fiber.Ctx) error {
+	return c.JSON(map[string]string{
+		"message": "Login here",
+	})
 }
