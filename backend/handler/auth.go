@@ -22,7 +22,19 @@ func Login(c *fiber.Ctx) error {
 		log.Println(err)
 	}
 
+	c.Cookie(setSession(users.Username))
+
 	return c.JSON(map[string]interface{}{
 		"login": auth,
 	})
+}
+
+func setSession(username string) *fiber.Cookie {
+	return &fiber.Cookie{
+		Name:     "session_id",
+		Value:    username,
+		SameSite: "None",
+		HTTPOnly: true,
+		Secure:   true,
+	}
 }
