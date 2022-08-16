@@ -13,6 +13,9 @@ func Run() {
 		panic(err)
 	}
 
+	database := database.New()
+	server := server.New()
+
 	database.InitDatabase()
-	server.RunServer()
+	server.Run()
 }
