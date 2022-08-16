@@ -10,10 +10,11 @@ type Users struct {
 	ID       uint64 `json:"id,omitempty"`
 	Username string `json:"username,omitempty"`
 	Password string `json:"password,omitempty"`
+	Database database.Database
 }
 
 func (u *Users) FindUsers(ctx context.Context) (*[]Users, error) {
-	db, err := database.DatabaseConnection()
+	db, err := u.Database.Connection()
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +39,8 @@ func (u *Users) FindUsers(ctx context.Context) (*[]Users, error) {
 	return &users, nil
 }
 
-func (u *Users) Authenticate(ctx context.Context, username, password string) (bool, error) {
-	db, err := database.DatabaseConnection()
+func (u *Users) Authenticate(ctx context.Context) (bool, error) {
+	db, err := u.Database.Connection()
 	if err != nil {
 		return false, err
 	}
@@ -50,8 +51,8 @@ func (u *Users) Authenticate(ctx context.Context, username, password string) (bo
 	row := db.QueryRowContext(
 		ctx,
 		"SELECT username FROM users WHERE username = $1 AND password = $2",
-		username,
-		password,
+		u.Username,
+		u.Password,
 	)
 
 	err = row.Scan(&usernameFromTable)
