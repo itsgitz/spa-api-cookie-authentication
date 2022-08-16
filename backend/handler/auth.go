@@ -1,40 +1,87 @@
 package handler
 
 import (
+	"errors"
 	"go-api/models"
-	"log"
+	"go-api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Login(c *fiber.Ctx) error {
-	users := &models.Users{}
+func (h *Handler) Login(c *fiber.Ctx) error {
+	user := &models.Users{}
 
-	if err := c.BodyParser(users); err != nil {
-		return c.JSON(map[string]string{
-			"error":   err.Error(),
-			"message": "Error, something went wrong",
-		})
+	if err := c.BodyParser(user); err != nil {
+		return c.JSON(utils.ErrorResponse(err, "JSON payload invalid"))
 	}
 
-	auth, err := users.Authenticate(c.Context(), users.Username, users.Password)
+	validated, err := loginFormValidation(user)
 	if err != nil {
-		log.Println(err)
+		return c.JSON(utils.ErrorResponse(err, "Login validation error"))
 	}
 
-	c.Cookie(setSession(users.Username))
+	if !validated {
+		return c.JSON(utils.ErrorResponse(err, "Login is not validated"))
+	}
+
+	auth, err := user.Authenticate(c.Context())
+	if err != nil {
+		return c.JSON(utils.ErrorResponse(err, "Authentication failed"))
+	}
+
+	if !auth {
+		return c.JSON(utils.ErrorResponse(
+			errors.New("User not found"),
+			"Invalid credential",
+		))
+	}
+
+	sess, err := h.Session.Get(c)
+	if err != nil {
+		return c.JSON(utils.ErrorResponse(
+			errors.New("Session configuration invalid"),
+			"Session configuration invalid",
+		))
+	}
+
+	sess.Set("username", user.Username)
+
+	if err := sess.Save(); err != nil {
+		return c.JSON(utils.ErrorResponse(
+			errors.New("Session configuration invalid"),
+			"Unable to saved session",
+		))
+	}
 
 	return c.JSON(map[string]interface{}{
-		"login": auth,
+		"login":   auth,
+		"message": "Successfully login",
 	})
 }
 
-func setSession(username string) *fiber.Cookie {
-	return &fiber.Cookie{
-		Name:     "session_id",
-		Value:    username,
-		SameSite: "None",
-		HTTPOnly: true,
-		Secure:   true,
+func (h *Handler) Logout(c *fiber.Ctx) error {
+	sess, err := h.Session.Get(c)
+	if err != nil {
+		panic(err)
 	}
+
+	if err := sess.Destroy(); err != nil {
+		return c.JSON(utils.ErrorResponse(err, "The is user unable to logout"))
+	}
+
+	return c.JSON(map[string]bool{
+		"logout": true,
+	})
+}
+
+func loginFormValidation(user *models.Users) (bool, error) {
+	if len(user.Username) == 0 {
+		return false, errors.New("Username is required")
+	}
+
+	if len(user.Password) == 0 {
+		return false, errors.New("Password is required")
+	}
+
+	return true, nil
 }
