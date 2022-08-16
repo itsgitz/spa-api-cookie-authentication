@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-api/handler"
 	"go-api/middleware"
+	"log"
 	"os"
 	"time"
 
@@ -11,26 +12,50 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-var port string
-
-func RunServer() {
-	port = fmt.Sprintf(":%s", os.Getenv("APP_PORT"))
-
-	app := fiber.New(serverConfiguration())
-	app.Use(logger.New())
-	app.Use(middleware.AuthenticationMiddleware)
-
-	app.Get("/", handler.Home)
-	app.Post("/login", handler.Login)
-
-	app.Listen(port)
+type Server struct {
+	Port        string
+	FiberConfig fiber.Config
 }
 
-func serverConfiguration() fiber.Config {
-	return fiber.Config{
-		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		IdleTimeout:       60 * time.Second,
-		EnablePrintRoutes: true,
-	}
+func New() *Server {
+	return &Server{}
+}
+
+func (s *Server) Run() {
+	s.setPort()
+	s.setConfiguration()
+
+	// Define our App and handlers
+	app := fiber.New(s.FiberConfig)
+	handlers := handler.New()
+
+	// Pass the session to middlewares
+	middlewares := middleware.New(handlers.Session)
+
+	// Use logger middleware
+	app.Use(logger.New())
+
+	api := app.Group("/api")
+	api.Use(middlewares.VerifyAuthentication)
+	api.Get("/", handlers.Home)
+	api.Get("/notes", handlers.GetNotes)
+	api.Post("/notes", handlers.CreateNotes)
+
+	auth := app.Group("/auth")
+	auth.Use(middlewares.Authentication)
+	auth.Post("/login", handlers.Login)
+	auth.Get("/logout", handlers.Logout)
+
+	log.Fatal(app.Listen(s.Port))
+}
+
+func (s *Server) setConfiguration() {
+	s.FiberConfig.ReadTimeout = 60 * time.Second
+	s.FiberConfig.WriteTimeout = 60 * time.Second
+	s.FiberConfig.IdleTimeout = 60 * time.Second
+	s.FiberConfig.EnablePrintRoutes = true
+}
+
+func (s *Server) setPort() {
+	s.Port = fmt.Sprintf(":%s", os.Getenv("APP_PORT"))
 }
