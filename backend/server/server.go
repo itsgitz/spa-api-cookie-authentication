@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type Server struct {
@@ -35,9 +36,13 @@ func (s *Server) Run() {
 	// Use logger middleware
 	app.Use(logger.New())
 
+	// Use recover middleware for handle panic
+	app.Use(recover.New())
+
 	api := app.Group("/api")
 	api.Use(middlewares.VerifyAuthentication)
 	api.Get("/", handlers.Home)
+	api.Get("/users", handlers.GetUsers)
 	api.Get("/notes", handlers.GetNotes)
 	api.Post("/notes", handlers.CreateNotes)
 
@@ -53,7 +58,7 @@ func (s *Server) setConfiguration() {
 	s.FiberConfig.ReadTimeout = 60 * time.Second
 	s.FiberConfig.WriteTimeout = 60 * time.Second
 	s.FiberConfig.IdleTimeout = 60 * time.Second
-	s.FiberConfig.EnablePrintRoutes = true
+	//s.FiberConfig.EnablePrintRoutes = true
 }
 
 func (s *Server) setPort() {
