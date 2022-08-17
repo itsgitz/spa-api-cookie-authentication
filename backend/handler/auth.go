@@ -44,6 +44,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		))
 	}
 
+	// NOTE: this is just an example
+	// The best practice is using encrypted session data
 	sess.Set("username", user.Username)
 
 	if err := sess.Save(); err != nil {
