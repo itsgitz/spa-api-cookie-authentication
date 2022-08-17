@@ -7,10 +7,10 @@ import (
 )
 
 type Notes struct {
-	ID        uint64    `json:"id,omitempty"`
-	Content   string    `json:"content,omitempty"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	Database  database.Database
+	ID        uint64            `json:"id,omitempty"`
+	Content   string            `json:"content,omitempty"`
+	CreatedAt time.Time         `json:"created_at,omitempty"`
+	Database  database.Database `json:"-"`
 }
 
 func (n *Notes) FindNotes(ctx context.Context) (*[]Notes, error) {

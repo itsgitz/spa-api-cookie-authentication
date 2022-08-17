@@ -3,7 +3,6 @@ package handler
 import (
 	"go-api/models"
 	"go-api/utils"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,10 +10,13 @@ import (
 func (h *Handler) GetNotes(c *fiber.Ctx) error {
 	notes := &models.Notes{}
 
-	log.Println(notes.FindNotes(c.Context()))
+	getNotes, err := notes.FindNotes(c.Context())
+	if err != nil {
+		return c.JSON(utils.ErrorResponse(err, "Unable to get notes data"))
+	}
 
-	return c.JSON(map[string]string{
-		"notes": "Hello",
+	return c.JSON(map[string]interface{}{
+		"data": getNotes,
 	})
 }
 
