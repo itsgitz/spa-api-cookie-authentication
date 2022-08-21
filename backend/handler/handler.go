@@ -10,9 +10,10 @@ type Handler struct {
 
 func New() *Handler {
 	var store = session.New(session.Config{
-		// CookieSecure:   true,
+		//CookieSecure:   true,
 		CookieHTTPOnly: true,
-		CookieSameSite: "Strict",
+		CookieSameSite: "SameSite",
+		CookiePath:     "/",
 	})
 
 	h := &Handler{}
