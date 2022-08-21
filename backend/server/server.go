@@ -2,20 +2,21 @@ package server
 
 import (
 	"fmt"
-	"go-api/handler"
-	"go-api/middleware"
 	"log"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type Server struct {
 	Port        string
+	App         *fiber.App
 	FiberConfig fiber.Config
+	CORS        cors.Config
 }
 
 func New() *Server {
@@ -27,38 +28,29 @@ func (s *Server) Run() {
 	s.setConfiguration()
 
 	// Define our App and handlers
-	app := fiber.New(s.FiberConfig)
-	handlers := handler.New()
-
-	// Pass the session to middlewares
-	middlewares := middleware.New(handlers.Session)
+	s.App = fiber.New(s.FiberConfig)
 
 	// Use logger middleware
-	app.Use(logger.New())
+	s.App.Use(logger.New())
 
 	// Use recover middleware for handle panic
-	app.Use(recover.New())
+	s.App.Use(recover.New())
 
-	api := app.Group("/api")
-	api.Use(middlewares.VerifyAuthentication)
-	api.Get("/", handlers.Home)
-	api.Get("/users", handlers.GetUsers)
-	api.Get("/notes", handlers.GetNotes)
-	api.Post("/notes", handlers.CreateNotes)
+	// CORS setting
+	s.setCors()
+	s.App.Use(cors.New(s.CORS))
 
-	auth := app.Group("/auth")
-	auth.Use(middlewares.Authentication)
-	auth.Post("/login", handlers.Login)
-	auth.Get("/logout", handlers.Logout)
+	// Set router
+	s.setRouter()
 
-	log.Fatal(app.Listen(s.Port))
+	// Listen ...
+	log.Fatal(s.App.Listen(s.Port))
 }
 
 func (s *Server) setConfiguration() {
 	s.FiberConfig.ReadTimeout = 60 * time.Second
 	s.FiberConfig.WriteTimeout = 60 * time.Second
 	s.FiberConfig.IdleTimeout = 60 * time.Second
-	//s.FiberConfig.EnablePrintRoutes = true
 }
 
 func (s *Server) setPort() {
