@@ -9,7 +9,7 @@ func (s *Server) setRouter() {
 	// Call all handlers
 	handlers := handler.New()
 
-	// Pass the session from handles to middlewares
+	// Pass the session from handlers to middlewares
 	middlewares := middleware.New(handlers.Session)
 
 	api := s.App.Group("/api")
