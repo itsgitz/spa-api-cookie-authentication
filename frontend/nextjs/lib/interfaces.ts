@@ -8,6 +8,10 @@ export interface LoginState {
   message: string,
 }
 
+export interface LogoutState {
+  logout: boolean
+}
+
 export interface Users {
   id?: number,
   username?: string,

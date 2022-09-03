@@ -3,7 +3,6 @@ package middleware
 import (
 	"errors"
 	"go-api/utils"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -28,9 +27,6 @@ func New(handlerSession *session.Store) *Middleware {
 func (m *Middleware) VerifyAuthentication(c *fiber.Ctx) error {
 	userSession := getSession(c, m.Session)
 
-	log.Println("User:", userSession, "is logged in")
-	log.Println(c.Cookies("session_id"))
-
 	if userSession == nil {
 		return c.JSON(utils.ErrorResponse(
 			errors.New("Invalid user session"),
@@ -44,12 +40,9 @@ func (m *Middleware) VerifyAuthentication(c *fiber.Ctx) error {
 func (m *Middleware) Authentication(c *fiber.Ctx) error {
 	userSession := getSession(c, m.Session)
 
-	log.Println("User:", userSession, "is logged in")
-	log.Println(c.Cookies("session_id"))
-
 	uri := string(c.Request().URI().Path())
 
-	if uri != "/auth/logout" {
+	if uri != "/auth/logout" && uri != "/auth/is_login" {
 		if userSession != nil {
 			return c.JSON(utils.ErrorResponse(
 				errors.New("Unable to authenticate user"),

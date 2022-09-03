@@ -22,5 +22,6 @@ func (s *Server) setRouter() {
 	auth := s.App.Group("/auth")
 	auth.Use(middlewares.Authentication)
 	auth.Post("/login", handlers.Login)
+	auth.Get("/is_login", handlers.IsAuthenticated)
 	auth.Get("/logout", handlers.Logout)
 }

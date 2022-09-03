@@ -1,8 +1,7 @@
 import { callAPI } from "./api";
-import { Users } from "./interfaces"
 
-export const login = async (data: Users) => {
-  const auth = await callAPI('/auth/login', 'POST', data);
+export const getUsers = async () => {
+  const users = await callAPI('/api/users', 'post');
 
-  return auth;
+  return users;
 }

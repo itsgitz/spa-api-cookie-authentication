@@ -1,8 +1,9 @@
 import Head from "next/head"
 import {useRouter} from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users } from "../lib/interfaces";
-import { login } from "../lib/users";
+import { login, isAuthenticated } from "../lib/auth";
+import {Message} from "../components/Message";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -11,6 +12,20 @@ export default function Login() {
   const [message, setMessage] = useState("");
 
   const router = useRouter();
+
+  // TODO: use middleware
+  useEffect(() => {
+    isAuthenticated()
+    .then((res) => {
+      if (res.login) {
+        console.log('User is already logged in. Redirecting ...')
+        router.push('/');
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  })
 
   const submitLogin = async (e: any) => {
     e.preventDefault();
@@ -73,22 +88,4 @@ export default function Login() {
       </div> 
     </div>
   )
-}
-
-const Message = (props: any) => {
-  if (props.type === 'error') {
-    return (
-      <div className="p-3 bg-red-200 border border-red-700 rounded text-red-700">
-        {props.message}
-      </div>
-    );
-  } else if (props.type === 'success') {
-    return (
-      <div className="p-3 bg-green-200 border border-green-700 rounded text-green-700">
-        {props.message}
-      </div>
-    );
-  } 
-
-  return null;
 }

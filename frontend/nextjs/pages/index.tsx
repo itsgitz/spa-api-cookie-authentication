@@ -1,25 +1,37 @@
 import Head from 'next/head'
 import {useRouter} from 'next/router';
-import { useEffect, useState } from 'react';
+import {useEffect} from 'react';
+import { isAuthenticated, logout } from '../lib/auth';
 import { Notes } from '../lib/interfaces';
-import { getNotes } from '../lib/notes';
+import { useNotes } from '../lib/notes';
 
 export default function Home({}) {
   const router = useRouter();
-  const [notes, setNotes] = useState<Notes[]>([]);
-
+  const [notes, notesError] = useNotes(); 
+  
+  // TODO: use middleware
   useEffect(() => {
-    if (notes.length === 0) {
-      getNotes().then((res) => {
-        if (res.error) {
-          return router.push('/login');
-        }
+    isAuthenticated()
+    .then((res) => {
+      if (!res.login) {
+        console.log('User is not logged in. Redirecting ...')
+        router.push('/login');
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  })
 
-        setNotes(res.data);
-      })
-    } 
-  }, [notes]);
+  const submitLogout = async () => {
+    const auth = await logout();
 
+    if (auth) {
+      router.push('/login');
+    }
+  }
+
+  
   return (
     <div className="container mx-auto">
       <Head>
@@ -28,7 +40,11 @@ export default function Home({}) {
       </Head>
 
       <main className=''>
-        <h1 className='text-3xl font-bold underline'>Hello!</h1>
+        <h1 className='text-3xl font-bold underline'>Take a note today</h1>
+
+        <div className='py-3'>
+          <a onClick={submitLogout}>Logout</a>
+        </div>
 
         <Notes notes={notes} />
       </main> 

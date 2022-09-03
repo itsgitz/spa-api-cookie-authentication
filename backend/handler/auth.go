@@ -76,6 +76,20 @@ func (h *Handler) Logout(c *fiber.Ctx) error {
 	})
 }
 
+func (h *Handler) IsAuthenticated(c *fiber.Ctx) error {
+	sess, err := h.Session.Get(c)
+	if err != nil {
+		panic(err)
+	}
+
+	// Check if user is authenticated
+	login := sess.Get("username") != nil
+
+	return c.JSON(map[string]bool{
+		"login": login,
+	})
+}
+
 func loginFormValidation(user *models.Users) (bool, error) {
 	if len(user.Username) == 0 {
 		return false, errors.New("Username is required")
