@@ -1,5 +1,5 @@
 // UNUSED MIDDLEWARE
-// WE CANNOT USE FETCH OR AXIOS FOR CALLING API REQUEST IN MIDDLEWARE
+// IT SEEMS LIKE WE CANNOT USE FETCH OR AXIOS FOR CALLING API REQUEST IN MIDDLEWARE
 
 // import {NextRequest, NextResponse} from "next/server";
 // import {isAuthenticated} from "./lib/auth";
