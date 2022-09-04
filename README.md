@@ -29,5 +29,8 @@ $ npm run dev
 * Add CSRF token
 * Dockerize the backend
 
+# Next Chapter
+The next chapter of my programming journey is build the same application, but we will use OAuth 2.0 and JWT as authentication method.
+
 # Contributor
 Anggit M Ginanjar - <anggit.ginanjar.dev@gmail.com>
