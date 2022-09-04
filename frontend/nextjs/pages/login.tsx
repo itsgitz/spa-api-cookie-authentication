@@ -38,8 +38,8 @@ export default function Login() {
     const auth = await login(data);
 
     if (auth.login) {
-      setMessageType('success');
-      setMessage(auth.message);
+      // setMessageType('success');
+      // setMessage(auth.message);
 
       setTimeout(() => {
         router.push('/');
