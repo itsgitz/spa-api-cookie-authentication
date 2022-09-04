@@ -42,8 +42,9 @@ export default function Home({}) {
       <main className=''>
         <h1 className='text-3xl font-bold underline'>Take a note today</h1>
 
+        <div className="py-3"></div>
         <div className='py-3'>
-          <a onClick={submitLogout}>Logout</a>
+          <a onClick={submitLogout} className="cursor-pointer bg-blue-400 px-3 py-2 rounded text-white font-bold">Logout</a>
         </div>
 
         <Notes notes={notes} />
